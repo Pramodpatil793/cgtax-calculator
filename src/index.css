@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #0f172a; /* bg-slate-900 */
+}
+
+/* Remove number input spinners */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Style select dropdown options */
+select option {
+  background: #1e293b !important; /* bg-slate-800 */
+  color: white !important;
+}
+
+/* --- FINAL, SIMPLIFIED STYLES FOR CUSTOM DATE INPUT --- */
+
+/* This is the container for the text input and our custom button */
+.date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Position our custom button to layer on top of the text input field */
+.date-input-wrapper button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 2.5rem; /* 40px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* --- Force styles for the stubborn 'Change Asset Type' link --- */
+#change-asset-link {
+  font-size: 3rem !important;    /* This is the same size as text-xl */
+  line-height: 4rem !important; /* This is the corresponding line height */
+}
