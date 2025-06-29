@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router-dom';
 
-const MEASUREMENT_ID = "G-0N6Z3L0SB6"; // <-- REPLACE THIS
+const MEASUREMENT_ID = "G-YOUR_MEASUREMENT_ID"; // <-- REPLACE THIS
 
 const AnalyticsAndTitleHandler = () => {
     const location = useLocation();
 
     useEffect(() => {
         // Step 1: Determine the correct page title based on the current URL
-        let title = "CGTax Calculator"; // Default title
+        let title = "CGTax Calculator";
         let path = location.pathname;
 
         if (path === '/') {
@@ -26,16 +26,16 @@ const AnalyticsAndTitleHandler = () => {
 
         // Step 3: Send the event to Google Analytics with the correct title and path
         if (window.gtag) {
-            window.gtag('event', 'page_view', {
+            // This line has been corrected to use the MEASUREMENT_ID variable
+            window.gtag('config', MEASUREMENT_ID, {
                 page_title: title,
-                page_location: window.location.href,
                 page_path: path,
             });
         }
 
-    }, [location]); // This effect runs every time the location object changes
+    }, [location]);
 
-    return null; // This component renders nothing to the screen
+    return null;
 };
 
 export default AnalyticsAndTitleHandler;
