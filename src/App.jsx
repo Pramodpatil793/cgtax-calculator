@@ -8,8 +8,7 @@ import CalculatorView from './features/calculator/CalculatorView';
 
 // Import our new and existing helper components
 import ScrollToTop from './components/common/ScrollToTop';
-import AnalyticsReporter from './components/common/AnalyticsReporter';
-import PageTitleUpdater from './components/common/PageTitleUpdater';
+import AnalyticsAndTitleHandler from './components/common/AnalyticsAndTitleHandler'; // Import the new component
 
 function App() {
     return (
@@ -17,10 +16,9 @@ function App() {
             <div className='dark bg-slate-900'>
                 <Navbar />
                 
-                {/* All helper components go here */}
+                {/* All helper components go here. We've replaced the two old ones with the single new one. */}
                 <ScrollToTop />
-                <AnalyticsReporter />
-                <PageTitleUpdater />
+                <AnalyticsAndTitleHandler />
                 
                 <main>
                     <Routes>
