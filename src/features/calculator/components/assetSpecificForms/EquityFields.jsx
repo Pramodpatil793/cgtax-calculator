@@ -1,7 +1,6 @@
 import React from 'react';
 import CustomCheckbox from '../../../../components/common/CustomCheckbox';
 import FormattedNumberInput from '../../../../components/common/FormattedNumberInput';
-import InputError from '../../../../components/common/InputError';
 
 export const EquityFields = ({ formData, onChange, placeholders }) => {
     return (
