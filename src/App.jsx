@@ -5,6 +5,8 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Dashboard from './features/dashboard/Dashboard';
 import CalculatorView from './features/calculator/CalculatorView';
+import AnalyticsReporter from './components/common/AnalyticsReporter'; // Import the new component
+
 
 const ScrollToTop = () => {
     const { pathname } = useLocation();
@@ -20,6 +22,7 @@ function App() {
             <div className='dark bg-slate-900'>
                 <Navbar />
                 <ScrollToTop />
+                <AnalyticsReporter />
                 <main>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
