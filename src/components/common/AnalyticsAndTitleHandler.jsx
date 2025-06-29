@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, matchPath } from 'react-router-dom';
 
-const MEASUREMENT_ID = "G-YOUR_MEASUREMENT_ID"; // <-- REPLACE THIS
-
 const AnalyticsAndTitleHandler = () => {
     const location = useLocation();
 
@@ -24,18 +22,19 @@ const AnalyticsAndTitleHandler = () => {
         // Step 2: Update the document's title
         document.title = title;
 
-        // Step 3: Send the event to Google Analytics with the correct title and path
+        // Step 3: Send the manual page_view event to Google Analytics.
+        // This is the correct command for tracking virtual page views in an SPA.
         if (window.gtag) {
-            // This line has been corrected to use the MEASUREMENT_ID variable
-            window.gtag('config', MEASUREMENT_ID, {
+            window.gtag('event', 'page_view', {
                 page_title: title,
-                page_path: path,
+                page_location: window.location.href, // Sends the full URL
+                page_path: path,                     // Sends just the path (e.g., /calculator/equity)
             });
         }
 
-    }, [location]);
+    }, [location]); // This effect runs on the initial load AND every time the URL changes.
 
-    return null;
+    return null; // This component renders nothing to the screen
 };
 
 export default AnalyticsAndTitleHandler;
