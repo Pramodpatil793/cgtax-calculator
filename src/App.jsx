@@ -1,28 +1,27 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { AppProvider } from './contexts/AppContext';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Dashboard from './features/dashboard/Dashboard';
 import CalculatorView from './features/calculator/CalculatorView';
-import AnalyticsReporter from './components/common/AnalyticsReporter'; // Import the new component
 
-
-const ScrollToTop = () => {
-    const { pathname } = useLocation();
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [pathname]);
-    return null;
-}
+// Import our new and existing helper components
+import ScrollToTop from './components/common/ScrollToTop';
+import AnalyticsReporter from './components/common/AnalyticsReporter';
+import PageTitleUpdater from './components/common/PageTitleUpdater';
 
 function App() {
     return (
         <AppProvider>
             <div className='dark bg-slate-900'>
                 <Navbar />
+                
+                {/* All helper components go here */}
                 <ScrollToTop />
                 <AnalyticsReporter />
+                <PageTitleUpdater />
+                
                 <main>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
