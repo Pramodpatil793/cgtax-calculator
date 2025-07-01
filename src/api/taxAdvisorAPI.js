@@ -1,5 +1,6 @@
-import { GEMINI_API_KEY } from '../constants/appConfig';
 import { TaxCalculationResult } from '../models/TaxCalculationResult';
+
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 export const fetchAiTaxAdvice = async (results) => {
     if (!results || !(results instanceof TaxCalculationResult)) {

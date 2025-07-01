@@ -47,6 +47,6 @@ select option {
 
 /* --- Force styles for the stubborn 'Change Asset Type' link --- */
 #change-asset-link {
-  font-size: 3rem !important;    /* This is the same size as text-xl */
-  line-height: 4rem !important; /* This is the corresponding line height */
+  font-size: 1.25rem !important;    /* This is the same size as text-xl */
+  line-height: 1.75rem !important; /* This is the corresponding line height */
 }

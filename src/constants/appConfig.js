@@ -1,6 +1,5 @@
 // WARNING: Do not commit your API key to a public repository.
 // Use environment variables in a real application.
-export const GEMINI_API_KEY = "AIzaSyD_6PylsIrrRg42coQi7SYnA1nCZrxeDP4";
 
 export const INITIAL_FORM_STATE = {
     purchasePrice: '',
