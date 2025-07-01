@@ -7,10 +7,14 @@ import ResultsDisplay from './components/ResultsDisplay';
 
 const AssetCalculatorPage = () => {
     const { assetId } = useParams();
+    
+    // 1. Get holdingPeriodText and dateError from the hook
     const {
         formData, handleInputChange, formErrors,
         results, aiInsight, isAiLoading, aiError,
-        assetConfig, runCalculation, getAiAdvice, resetCalculator, holdingPeriodText,
+        assetConfig, runCalculation, getAiAdvice, resetCalculator,
+        holdingPeriodText,
+        dateError,
     } = useCalculator(assetId);
 
     if (!assetConfig) {
@@ -18,7 +22,7 @@ const AssetCalculatorPage = () => {
             <div className="text-center py-10">
                 <h2 className="text-2xl font-bold text-red-500">Asset Not Found</h2>
                 <p className="text-slate-400 mt-2">The calculator for "{assetId}" does not exist.</p>
-                <Link to="/calculator" className="text-purple-400 hover:text-purple-300 text-xl mb-4 inline-flex items-center">← Back to Asset Selection</Link>
+                <Link to="/calculator" className="text-purple-400 hover:text-purple-300 mt-4 inline-block">← Back to Asset Selection</Link>
             </div>
         );
     }
@@ -26,7 +30,7 @@ const AssetCalculatorPage = () => {
     return (
         <div>
             <div className="mb-8">
-                <Link to="/calculator" className="text-purple-400 hover:text-purple-300 text-lg mb-4 inline-flex items-center">← Change Asset Type</Link>
+                <Link to="/calculator" className="text-purple-400 hover:text-purple-300 text-xl mb-4 inline-flex items-center">← Change Asset Type</Link>
                 <h1 className="text-3xl font-bold text-white">{assetConfig.title} Calculator</h1>
             </div>
             <div className="lg:grid lg:grid-cols-2 lg:gap-8">
@@ -38,9 +42,12 @@ const AssetCalculatorPage = () => {
                         formErrors={formErrors}
                         runCalculation={runCalculation}
                         resetCalculator={resetCalculator}
+                        // We also pass dateError to the form
+                        dateError={dateError}
                     />
                 </div>
                 <div className="lg:pl-4 mt-8 lg:mt-0 z-10">
+                   {/* 2. Pass holdingPeriodText as a prop to the ResultsDisplay component */}
                    <ResultsDisplay 
                         results={results}
                         aiInsight={aiInsight}

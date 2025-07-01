@@ -2,7 +2,7 @@ import React from 'react';
 // 1. Add 'Info' to the import from lucide-react
 import { Calculator, CheckCircle, Sparkles, BrainCircuit, Landmark, AlertCircle, Info, TrendingUp } from 'lucide-react';
 
-const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice }) => {
+const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice, holdingPeriodText }) => {
     if (!results) {
         return (
             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 min-h-full">
@@ -22,20 +22,6 @@ const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice 
 
     const summaryText = results.getSummaryText();
     const shouldShowStatusBox = results.totalTaxPayable <= 0 && !results.calculationError;
-
-    const holdingPeriodYears = Math.floor(results.holdingPeriod / 12);
-    const holdingPeriodMonths = results.holdingPeriod % 12;
-
-    let holdingPeriodText = '';
-    if (holdingPeriodYears > 0) {
-        holdingPeriodText += `${holdingPeriodYears} year${holdingPeriodYears > 1 ? 's' : ''}`;
-    }
-    if (holdingPeriodMonths > 0) {
-        holdingPeriodText += `${holdingPeriodYears > 0 ? ' and ' : ''}${holdingPeriodMonths} month${holdingPeriodMonths > 1 ? 's' : ''}`;
-    }
-    if (holdingPeriodText === '') {
-        holdingPeriodText = 'Less than a month';
-    }
 
     return (
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 min-h-full">

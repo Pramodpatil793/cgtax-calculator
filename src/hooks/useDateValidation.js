@@ -44,7 +44,7 @@ export const useDateValidation = (purchaseDate, saleDate, isGrandfathered, isPre
                 years--;
                 months += 12;
             }
-            setHoldingPeriodText(`Holding Period: ${years > 0 ? `${years}y ` : ''}${months > 0 ? `${months}m ` : ''}${days}d`);
+            setHoldingPeriodText(`${years > 0 ? `${years}y ` : ''}${months > 0 ? `${months}m ` : ''}${days}d`);
         } else {
             setHoldingPeriodText('');
         }
