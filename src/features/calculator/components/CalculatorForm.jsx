@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { RotateCcw, Calendar, AlertCircle } from 'lucide-react';
 
 import FormattedNumberInput from '../../../components/common/FormattedNumberInput';
@@ -11,6 +11,19 @@ import { formatDateForDisplay } from '../../../utils/formatters';
 const CalculatorForm = ({ assetConfig, formData, handleInputChange, formErrors, runCalculation, resetCalculator }) => {
     const [activeCalendar, setActiveCalendar] = useState(null);
     const { dateError, holdingPeriodText } = useDateValidation(formData.purchaseDate, formData.saleDate, formData.isGrandfathered, formData.isPre2001Property);
+
+    // --- NEW: This logic determines if the LTCG options should be shown ---
+    const showLtcgOptions = useMemo(() => {
+        if (assetConfig.id !== 'realestate' || !formData.purchaseDate || !formData.saleDate) {
+            return false;
+        }
+        const purchaseDateObj = new Date(formData.purchaseDate);
+        const saleDateObj = new Date(formData.saleDate);
+        const ltcgCutoffDate = new Date(purchaseDateObj);
+        ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 2);
+        return saleDateObj > ltcgCutoffDate;
+    }, [assetConfig.id, formData.purchaseDate, formData.saleDate]);
+
 
     const getUnitLabel = (unit) => {
         if (!unit) return '';
@@ -31,6 +44,17 @@ const CalculatorForm = ({ assetConfig, formData, handleInputChange, formErrors, 
                     errors={formErrors}
                     placeholders={assetConfig.placeholders}
                 />
+
+                {/* --- NEW: This block renders the LTCG options --- */}
+                {showLtcgOptions && (
+                    <div className="bg-fuchsia-500/10 p-4 rounded-xl border border-fuchsia-400/20 space-y-3">
+                        <label className="text-sm font-medium text-slate-300">LTCG Tax Calculation Method<span className="text-red-500 ml-1">*</span></label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button type="button" onClick={() => handleInputChange('ltcgOption', 'withIndexation')} className={`p-3 text-center rounded-lg text-sm transition-all ${formData.ltcgOption === 'withIndexation' ? 'bg-purple-600 text-white font-bold ring-2 ring-purple-400' : 'bg-white/10 hover:bg-white/20'}`}>20% with Indexation</button>
+                            <button type="button" onClick={() => handleInputChange('ltcgOption', 'withoutIndexation')} className={`p-3 text-center rounded-lg text-sm transition-all ${formData.ltcgOption === 'withoutIndexation' ? 'bg-purple-600 text-white font-bold ring-2 ring-purple-400' : 'bg-white/10 hover:bg-white/20'}`}>12.5% without Indexation</button>
+                        </div>
+                    </div>
+                )}
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>

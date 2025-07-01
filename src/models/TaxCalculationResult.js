@@ -50,6 +50,22 @@ export class TaxCalculationResult {
         return this.totalPurchase.toLocaleString('en-IN');
     }
 
+    // --- NEW GETTERS FOR COMPARISON ---
+    get comparisonTaxPayable() {
+        if (this.taxWithIndexation === null) return null;
+        
+        const otherTax = this.taxType.includes('20%') ? this.taxWithoutIndexation : this.taxWithIndexation;
+        return otherTax > 0 ? otherTax * 1.04 : 0; // Add 4% cess for comparison
+    }
+
+    get savedAmount() {
+        const comparison = this.comparisonTaxPayable;
+        if (comparison === null) return 0;
+        
+        const finalTaxPayable = this.baseTax + this.cess;
+        return comparison - finalTaxPayable;
+    }
+
     get formattedTotalSale() {
         return this.totalSale.toLocaleString('en-IN');
     }

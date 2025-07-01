@@ -1,6 +1,6 @@
 import React from 'react';
 // 1. Add 'Info' to the import from lucide-react
-import { Calculator, CheckCircle, Sparkles, BrainCircuit, Landmark, AlertCircle, Info } from 'lucide-react';
+import { Calculator, CheckCircle, Sparkles, BrainCircuit, Landmark, AlertCircle, Info, TrendingUp } from 'lucide-react';
 
 const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice }) => {
     if (!results) {
@@ -22,6 +22,20 @@ const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice 
 
     const summaryText = results.getSummaryText();
     const shouldShowStatusBox = results.totalTaxPayable <= 0 && !results.calculationError;
+
+    const holdingPeriodYears = Math.floor(results.holdingPeriod / 12);
+    const holdingPeriodMonths = results.holdingPeriod % 12;
+
+    let holdingPeriodText = '';
+    if (holdingPeriodYears > 0) {
+        holdingPeriodText += `${holdingPeriodYears} year${holdingPeriodYears > 1 ? 's' : ''}`;
+    }
+    if (holdingPeriodMonths > 0) {
+        holdingPeriodText += `${holdingPeriodYears > 0 ? ' and ' : ''}${holdingPeriodMonths} month${holdingPeriodMonths > 1 ? 's' : ''}`;
+    }
+    if (holdingPeriodText === '') {
+        holdingPeriodText = 'Less than a month';
+    }
 
     return (
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 min-h-full">
@@ -54,6 +68,19 @@ const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice 
                     <div className="bg-white/10 rounded-xl p-4"><div className="text-sm text-slate-400">Total Purchase</div><div className="text-xl font-bold text-white">₹{results.formattedTotalPurchase}</div></div>
                     <div className="bg-white/10 rounded-xl p-4"><div className="text-sm text-slate-400">Total Sale</div><div className="text-xl font-bold text-white">₹{results.formattedTotalSale}</div></div>
                 </div>
+
+                {/* --- NEW: Comparison Box --- */}
+                {results.isLongTerm && results.savedAmount > 0 && (
+                    <div className="p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 text-center">
+                        <p className="text-sm text-sky-300 flex items-center justify-center gap-2"><TrendingUp size={16}/> Smart Choice!</p>
+                        <p className="text-slate-300 mt-1">
+                            You saved <span className="font-bold text-white">₹{results.savedAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span> in taxes with this option.
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1">
+                            (Tax with other option would have been ₹{results.comparisonTaxPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })})
+                        </p>
+                    </div>
+                )}
                 
                 {/* This is the NEW version with the tooltip added */}
                 <div className={`p-4 rounded-xl ${gainOrLossStyles.bgColor}`}>
@@ -130,7 +157,7 @@ const ResultsDisplay = ({ results, aiInsight, isAiLoading, aiError, getAiAdvice 
                         )}
                         {/* --- END OF UPDATED SECTION --- */}
 
-                        <div className="flex items-center justify-between"><span className="text-slate-300">Holding Period</span><span className="text-white font-semibold">{results.holdingPeriod} months ({results.isLongTerm ? 'Long-term' : 'Short-term'})</span></div>
+                        <div className="flex items-center justify-between"><span className="text-slate-300">Holding Period</span><span className="text-white font-semibold">{holdingPeriodText} ({results.isLongTerm ? 'Long-term' : 'Short-term'})</span></div>
                         <div className="flex items-center justify-between"><span className="text-slate-300">Tax Type</span><span className="text-white font-semibold">{results.taxType}</span></div>
                         {results.exemption > 0 && (<div className="flex items-center justify-between"><span className="text-slate-300">LTCG Exemption</span><span className="text-green-400 font-semibold">- ₹{results.formattedExemption}</span></div>)}
                         <div className="flex items-center justify-between border-t border-slate-600 pt-3"><span className="text-slate-300">Taxable Gain</span><span className="text-white font-bold">₹{results.formattedTaxableGain}</span></div>

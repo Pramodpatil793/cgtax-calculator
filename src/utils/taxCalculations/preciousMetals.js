@@ -20,9 +20,9 @@ export const calculatePreciousMetalsTax = (formData) => {
     const purchaseDateObj = new Date(purchaseDate);
     const saleDateObj = new Date(saleDate);
 
-    // Create a date that is exactly 36 months after the purchase date.
+    // Create a date that is exactly 24 months after the purchase date.
     const ltcgCutoffDate = new Date(purchaseDateObj);
-    ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 3);
+    ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 2);
 
     // To be LTCG, the sale date must be strictly AFTER this cutoff date.
     const isLongTerm = saleDateObj > ltcgCutoffDate;

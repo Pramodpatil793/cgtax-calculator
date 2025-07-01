@@ -10,7 +10,7 @@ const AssetCalculatorPage = () => {
     const {
         formData, handleInputChange, formErrors,
         results, aiInsight, isAiLoading, aiError,
-        assetConfig, runCalculation, getAiAdvice, resetCalculator,
+        assetConfig, runCalculation, getAiAdvice, resetCalculator, holdingPeriodText,
     } = useCalculator(assetId);
 
     if (!assetConfig) {
@@ -47,6 +47,7 @@ const AssetCalculatorPage = () => {
                         isAiLoading={isAiLoading}
                         aiError={aiError}
                         getAiAdvice={getAiAdvice}
+                        holdingPeriodText={holdingPeriodText}
                    />
                 </div>
             </div>

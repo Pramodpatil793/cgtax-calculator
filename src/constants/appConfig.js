@@ -16,5 +16,6 @@ export const INITIAL_FORM_STATE = {
     isPre2001Property: false,
     originalCostPre2001: '',
     fmvOnApr12001: '',
-    measurementUnit: ''
+    measurementUnit: '',
+    ltcgOption: 'withIndexation',
 };

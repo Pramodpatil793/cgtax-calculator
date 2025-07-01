@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useFormManager } from './useFormManager';
+import { useDateValidation } from './useDateValidation';
 import { useAiAdvisor } from './useAiAdvisor';
 import { ASSET_CONFIGS } from '../config/assetConfig';
 import { calculateTax } from '../utils/taxCalculations';
@@ -14,6 +15,7 @@ export const useCalculator = (selectedAssetId) => {
     const { formData, setFormData, formErrors, setFormErrors, handleInputChange, resetForm: baseResetForm } = useFormManager(assetConfig?.initialState);
     const { aiInsight, isAiLoading, aiError, getAiAdvice, clearAiInsight } = useAiAdvisor();
     const [results, setResults] = useState(null);
+    const { dateError, holdingPeriodText } = useDateValidation(formData.purchaseDate, formData.saleDate, formData.isGrandfathered, formData.isPre2001Property);
 
     // --- Logic is now handled conditionally WITHIN effects and callbacks. ---
 
@@ -97,5 +99,7 @@ export const useCalculator = (selectedAssetId) => {
         runCalculation,
         getAiAdvice,
         resetCalculator,
+        holdingPeriodText,
+        dateError,
     };
 };

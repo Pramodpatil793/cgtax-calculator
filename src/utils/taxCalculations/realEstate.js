@@ -4,12 +4,12 @@ import { CII_DATA } from '../../constants/ciiData';
 export const calculateRealEstateTax = (formData) => {
     const {
         purchasePrice, salePrice, quantity, expenses,
-        otherIncome, purchaseDate, saleDate
+        otherIncome, purchaseDate, saleDate, ltcgOption
     } = formData;
 
     const purchase = parseNumeric(purchasePrice);
     const sale = parseNumeric(salePrice);
-    const qty = parseNumeric(quantity);
+    const qty = parseNumeric(quantity) || 1;
     const exp = parseNumeric(expenses);
     const inc = parseNumeric(otherIncome);
 
@@ -18,53 +18,62 @@ export const calculateRealEstateTax = (formData) => {
 
     const purchaseDateObj = new Date(purchaseDate);
     const saleDateObj = new Date(saleDate);
-    // Create a date that is exactly 24 months after the purchase date.
+    
     const ltcgCutoffDate = new Date(purchaseDateObj);
     ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 2);
-
-    // To be LTCG, the sale date must be strictly AFTER this cutoff date.
     const isLongTerm = saleDateObj > ltcgCutoffDate;
 
-    let netGain = 0;
-    let indexedCost = 0;
-    let taxRate = 0;
-    let taxType = '';
-    let relevantLaw = 'as per standard income tax rules';
-    let purchaseFY = null, saleFY = null, ciiPurchase = null, ciiSale = null;
+    let result = {
+        totalPurchase, totalSale, totalExpenses: exp,
+        isLongTerm, exemption: 0, relevantLaw: 'as per standard income tax rules',
+        assetType: 'Real Estate',
+        taxWithIndexation: null,
+        taxWithoutIndexation: null,
+        calculationError: null, // Initialize error as null
+    };
 
     if (isLongTerm) {
-        purchaseFY = getFinancialYear(purchaseDate);
-        saleFY = getFinancialYear(saleDate);
-        ciiPurchase = CII_DATA[purchaseFY];
-        ciiSale = CII_DATA[saleFY];
-
-        if (ciiPurchase && ciiSale) {
-            indexedCost = totalPurchase * (ciiSale / ciiPurchase);
-            netGain = totalSale - indexedCost - exp;
-        } else {
-            netGain = totalSale - totalPurchase - exp;
+        const purchaseFY = getFinancialYear(purchaseDate);
+        const saleFY = getFinancialYear(saleDate);
+        const ciiPurchase = CII_DATA[purchaseFY];
+        const ciiSale = CII_DATA[saleFY];
+        let indexedCost = totalPurchase;
+        
+        // --- THIS IS THE NEW ERROR-CHECKING LOGIC ---
+        if (ltcgOption === 'withIndexation') {
+            if (!ciiSale) {
+                result.calculationError = `Indexation cannot be calculated. The official CII for the sale year (${saleFY}) has not been released yet.`;
+                result.netGain = totalSale - totalPurchase - exp; // Show non-indexed gain as a reference
+            } else if (!ciiPurchase) {
+                result.calculationError = `Indexation cannot be calculated. The official CII for the purchase year (${purchaseFY}) is not available.`;
+                result.netGain = totalSale - totalPurchase - exp;
+            } else {
+                indexedCost = totalPurchase * (ciiSale / ciiPurchase);
+                result.netGain = totalSale - indexedCost - exp;
+            }
+            result.taxRate = 0.20;
+            result.taxType = 'LTCG (20% with Indexation)';
+            result.indexedCost = indexedCost;
+            result.purchaseFY = purchaseFY;
+            result.saleFY = saleFY;
+            result.ciiPurchaseValue = ciiPurchase;
+            result.ciiSaleValue = ciiSale;
+        } else { // 'withoutIndexation'
+            result.netGain = totalSale - totalPurchase - exp;
+            result.taxRate = 0.125;
+            result.taxType = 'LTCG (12.5% without Indexation)';
+            result.indexedCost = 0;
         }
-        taxRate = 0.20;
-        taxType = 'LTCG (With Indexation)';
-        relevantLaw = 'under Section 112';
     } else {
-        netGain = totalSale - totalPurchase - exp;
-        taxRate = getMarginalTaxRate(netGain + inc);
-        taxType = 'STCG (Added to Income)';
+        // --- STCG Calculation ---
+        result.netGain = totalSale - totalPurchase - exp;
+        result.taxRate = getMarginalTaxRate(result.netGain + inc);
+        result.taxType = 'STCG (Added to Income)';
     }
 
-    const taxableGain = Math.max(0, netGain);
-    const baseTax = taxableGain * taxRate;
-    const cess = baseTax * 0.04;
-
-    return {
-        totalPurchase, totalSale, netGain, isLongTerm, taxRate, exemption: 0,
-        taxableGain, baseTax, cess,
-        taxType, relevantLaw, indexedCost, assetType: 'Real Estate',
-        // --- NEW PROPERTIES FOR INDEXATION FORMULA ---
-        purchaseFY: isLongTerm ? purchaseFY : null,
-        saleFY: isLongTerm ? saleFY : null,
-        ciiPurchaseValue: isLongTerm ? ciiPurchase : null,
-        ciiSaleValue: isLongTerm ? ciiSale : null, totalExpenses: exp,
-    };
+    result.taxableGain = result.calculationError ? 0 : Math.max(0, result.netGain);
+    result.baseTax = result.taxableGain * result.taxRate;
+    result.cess = result.baseTax * 0.04;
+    
+    return result;
 };
