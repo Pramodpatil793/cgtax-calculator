@@ -1,5 +1,4 @@
-import { getFinancialYear, getMarginalTaxRate, parseNumeric } from './helpers';
-import { CII_DATA } from '../../constants/ciiData';
+import { getMarginalTaxRate, parseNumeric } from './helpers';
 
 export const calculatePreciousMetalsTax = (formData) => {
     // This logic is identical to Real Estate for LTCG/STCG, but with a different holding period.

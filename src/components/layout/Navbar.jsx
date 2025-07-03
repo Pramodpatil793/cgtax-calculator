@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Menu, X } from 'lucide-react'; // Correctly imported icons
+import { Menu, X } from 'lucide-react'; // Correctly imported icons
 import { AppContext } from '../../contexts/AppContext';
 
 // A simple hook to detect if the page has been scrolled

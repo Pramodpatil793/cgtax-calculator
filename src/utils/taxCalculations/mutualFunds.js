@@ -1,5 +1,4 @@
-import { getFinancialYear, getMarginalTaxRate, parseNumeric } from './helpers';
-import { CII_DATA } from '../../constants/ciiData';
+import { getMarginalTaxRate, parseNumeric } from './helpers';
 import { calculateEquityTax } from './equity';
 
 export const calculateMutualFundsTax = (formData) => {
