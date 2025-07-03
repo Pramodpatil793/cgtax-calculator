@@ -1,0 +1,13 @@
+# Netlify Build and Deploy Settings
+# This tells Netlify how to build your site and where the final files are.
+[build]
+  command = "npm run build"
+  publish = "build"  # Use "dist" if your build output folder is named dist
+
+# SPA Redirect Rule
+# This rule is the standard for React/SPAs. It directs all paths to your
+# main index.html file UNLESS a file already exists at the requested path.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
