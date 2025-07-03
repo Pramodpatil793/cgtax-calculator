@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles, Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Sparkles, Menu, X } from 'lucide-react'; // Correctly imported icons
 import { AppContext } from '../../contexts/AppContext';
 
 // A simple hook to detect if the page has been scrolled
@@ -9,12 +9,10 @@ const useScroll = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            // Set scrolled to true if user has scrolled more than 10px
             setIsScrolled(window.scrollY > 10);
         };
         
         window.addEventListener('scroll', handleScroll);
-        // Clean up the event listener on component unmount
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -23,11 +21,11 @@ const useScroll = () => {
 
 
 const Navbar = () => {
+    const location = useLocation();
     const { setSelectedAsset } = useContext(AppContext);
     const [isOpen, setIsOpen] = useState(false);
     const isScrolled = useScroll();
 
-    // This helper function resets the selected asset when navigating home via the logo.
     const handleHomeLinkClick = () => {
         setSelectedAsset(null);
         setIsOpen(false);
@@ -45,35 +43,69 @@ const Navbar = () => {
         `}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
                 <div className="flex items-center justify-between h-full">
-                    {/* This ensures the logo and app name link to the homepage ('/'). */}
-                    <Link to="/" onClick={handleHomeLinkClick} className="flex items-center cursor-pointer">
-                        <Sparkles className="h-8 w-8 text-purple-400" />
-                        <span className="text-2xl font-bold text-white ml-2">CGTax</span>
+                    
+                    {/* Main Logo - Visible on all screen sizes */}
+                    <Link to="/" onClick={handleHomeLinkClick} className="flex items-center cursor-pointer group">
+                        <div className="h-12 w-12 ">
+                            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M35 15L15 50L35 85" stroke="#7DD3FC" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M65 15L85 50L65 85" stroke="#7DD3FC" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"/>
+                                <text x="50" y="68" fontFamily="Inter, sans-serif" fontSize="48" fontWeight="bold" fill="#BAE6FD" textAnchor="middle">₹</text>
+                            </svg>
+                        </div>
+                        <span className="text-4xl font-bold text-white ml-0.5">
+                            <span className="text-sky-400">CG</span><span className="font-semibold text-slate-300">Tax</span>
+                        </span>
                     </Link>
+
+                    {/* Desktop Navigation */}
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-4">
-                            {/* This ensures the "Calculator" text links to the calculator page. */}
-                            <Link to="/calculator" onClick={handleLinkClick} className="text-slate-300 hover:bg-slate-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Calculator</Link>
+                            <Link
+                                to="/calculator"
+                                onClick={handleLinkClick}
+                                className={`
+                                    px-4 py-2 rounded-full text-xl font-semibold transition-all duration-300
+                                    ${location.pathname.startsWith('/calculator')
+                                        ? 'bg-sky-500/10 text-sky-300 ring-1 ring-sky-500/30'
+                                        : 'text-slate-400 hover:text-sky-300 hover:bg-sky-500/5'
+                                    }
+                                `}
+                            >
+                                Calculator
+                            </Link>
                         </div>
                     </div>
                     
-                    {/* The div containing the Log In and Sign Up buttons has been removed. */}
-
+                    {/* Mobile Menu Button */}
                     <div className="-mr-2 flex md:hidden">
                         <button onClick={() => setIsOpen(!isOpen)} type="button" className="bg-slate-800 inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none">
+                            <span className="sr-only">Open main menu</span>
                             {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Dropdown */}
             {isOpen && (
                 <div className="md:hidden bg-slate-900/95 border-t border-slate-700/50">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <Link to="/calculator" onClick={handleLinkClick} className="text-slate-300 hover:bg-slate-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Calculator</Link>
+                        {/* The "Calculator" link for mobile */}
+                        <Link 
+                            to="/calculator" 
+                            onClick={handleLinkClick} 
+                            className={`
+                                block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
+                                ${location.pathname.startsWith('/calculator')
+                                    ? 'bg-slate-700 text-white'
+                                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                                }
+                            `}
+                        >
+                            Calculator
+                        </Link>
                     </div>
-                    {/* The section for mobile Log In and Sign Up buttons has also been removed. */}
                 </div>
             )}
         </nav>

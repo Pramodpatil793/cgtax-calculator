@@ -8,7 +8,7 @@ import AssetCalculatorPage from './AssetCalculatorPage'; // Import our new compo
 // CalculatorView is now a "Layout Route" that contains its own routes.
 const CalculatorView = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/60 to-slate-900 text-white pt-24 pb-8"> 
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/60 to-slate-900 text-white pt-20 pb-8"> 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <Routes>
                     {/* Route 1: The "index" route for "/calculator" */}

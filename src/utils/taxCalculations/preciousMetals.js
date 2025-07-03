@@ -31,22 +31,11 @@ export const calculatePreciousMetalsTax = (formData) => {
     let taxRate = 0;
     let taxType = '';
     let relevantLaw = 'as per standard income tax rules';
-    let purchaseFY = null, saleFY = null, ciiPurchase = null, ciiSale = null;
 
     if (isLongTerm) {
-        purchaseFY = getFinancialYear(purchaseDate);
-        saleFY = getFinancialYear(saleDate);
-        ciiPurchase = CII_DATA[purchaseFY];
-        ciiSale = CII_DATA[saleFY];
-
-        if (ciiPurchase && ciiSale) {
-            indexedCost = totalPurchase * (ciiSale / ciiPurchase);
-            netGain = totalSale - indexedCost - exp;
-        } else {
-            netGain = totalSale - totalPurchase - exp;
-        }
-        taxRate = 0.20;
-        taxType = 'LTCG (With Indexation)';
+        netGain = totalSale - totalPurchase - exp;
+        taxRate = 0.125;
+        taxType = 'LTCG';
     } else {
         netGain = totalSale - totalPurchase - exp;
         taxRate = getMarginalTaxRate(netGain + inc);
@@ -61,10 +50,6 @@ export const calculatePreciousMetalsTax = (formData) => {
         totalPurchase, totalSale, netGain, isLongTerm, taxRate, exemption: 0,
         taxableGain, baseTax, cess,
         taxType, relevantLaw, indexedCost, assetType: 'Precious Metals & Gems',
-        // --- NEW PROPERTIES FOR INDEXATION FORMULA ---
-        purchaseFY: isLongTerm ? purchaseFY : null,
-        saleFY: isLongTerm ? saleFY : null,
-        ciiPurchaseValue: isLongTerm ? ciiPurchase : null,
-        ciiSaleValue: isLongTerm ? ciiSale : null, totalExpenses: exp,
+        totalExpenses: exp,
     };
 };

@@ -8,7 +8,7 @@ export const preciousMetalsConfig = {
     icon: Gem,
     color: 'from-yellow-500 to-amber-600',
     stcg: 'Slab Rate',
-    ltcg: '20% with Indexation',
+    ltcg: '12.5% without Indexation',
     description: 'Gold, silver, diamonds, etc.',
     formComponent: PreciousMetalsFields,
     initialState: {
@@ -28,11 +28,11 @@ export const preciousMetalsConfig = {
 
         if (isNaN(purchaseDate.getTime()) || isNaN(saleDate.getTime())) return false;
 
-        // Create a date that is exactly 36 months (3 years) after purchase
+        // Create a date that is exactly 24 months (2 years) after purchase
         const ltcgCutoffDate = new Date(purchaseDate);
-        ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 3);
+        ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 2);
 
-        // It's STCG if the sale date is on or before the 3-year anniversary.
+        // It's STCG if the sale date is on or before the 2-year anniversary.
         // If it's STCG, we need the income field.
         return saleDate <= ltcgCutoffDate;
     }

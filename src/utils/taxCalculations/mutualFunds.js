@@ -1,6 +1,6 @@
 import { getFinancialYear, getMarginalTaxRate, parseNumeric } from './helpers';
 import { CII_DATA } from '../../constants/ciiData';
-import { calculateEquityTax } from './equity'; // Reuse equity logic for equity funds
+import { calculateEquityTax } from './equity';
 
 export const calculateMutualFundsTax = (formData) => {
     const {
@@ -8,78 +8,55 @@ export const calculateMutualFundsTax = (formData) => {
         purchasePrice, salePrice, quantity, expenses, otherIncome
     } = formData;
 
+    // 1. Handle Equity-Oriented Funds (>65% equity)
     if (mutualFundType === 'equity') {
-        // Equity funds follow the same rules as stocks
         const equityResults = calculateEquityTax(formData);
         return { ...equityResults, assetType: 'Equity Mutual Fund' };
     }
 
-    // --- Logic for Debt Funds ---
+    // Common variables for non-equity funds
     const purchaseDateObj = new Date(purchaseDate);
     const saleDateObj = new Date(saleDate);
-    
     const purchase = parseNumeric(purchasePrice);
     const sale = parseNumeric(salePrice);
     const qty = parseNumeric(quantity);
     const exp = parseNumeric(expenses);
     const inc = parseNumeric(otherIncome);
-
     const totalPurchase = purchase * qty;
     const totalSale = sale * qty;
-    
-    const newRuleCutoffDate = new Date('2023-04-01');
-    const isUnderNewRule = purchaseDateObj >= newRuleCutoffDate;
 
-    // Create a date that is exactly 24 months after the purchase date.
-    const ltcgCutoffDate = new Date(purchaseDateObj);
-    ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 2);
-
-    // To be LTCG, the sale date must be strictly AFTER this cutoff date.
-    const isLongTerm = saleDateObj > ltcgCutoffDate && !isUnderNewRule;
-    
     let netGain = 0;
-    let indexedCost = 0;
     let taxRate = 0;
     let taxType = '';
     let relevantLaw = 'as per standard income tax rules';
-    let purchaseFY = null, saleFY = null, ciiPurchase = null, ciiSale = null, calculationError = null;
+    let isLongTerm = false;
     
-
-    if (isLongTerm) {
-        // Old regime (purchased before 1-Apr-2023, held > 24 months) gets indexation
-        purchaseFY = getFinancialYear(purchaseDate);
-        saleFY = getFinancialYear(saleDate);
-        ciiPurchase = CII_DATA[purchaseFY];
-        ciiSale = CII_DATA[saleFY];
-
-        console.log("--- CII DEBUG DATA ---", {
-            purchaseDate_from_form: purchaseDate,
-            saleDate_from_form: saleDate,
-            generated_purchaseFY_key: purchaseFY,
-            generated_saleFY_key: saleFY,
-            lookup_result_for_purchase: ciiPurchase,
-            lookup_result_for_sale: ciiSale
-        });
-
-        if (ciiPurchase && ciiSale) {
-            indexedCost = totalPurchase * (ciiSale / ciiPurchase);
-            netGain = totalSale - indexedCost - exp;
-        } else {
-            console.log("cii data not found");
-            netGain = totalSale - totalPurchase - exp; // Fallback if CII data is missing
-        }
-        taxRate = 0.125; // 12.5% with indexation
-        taxType = 'LTCG (With Indexation)';
-    } else {
-        // STCG for old regime, or any gain under new regime
+    // 2. Handle New Debt/Gold/Intl. Funds (bought on/after 1-Apr-2023)
+    if (mutualFundType === 'debt_new') {
         netGain = totalSale - totalPurchase - exp;
         taxRate = getMarginalTaxRate(netGain + inc);
         taxType = 'Gain Added to Income';
-        relevantLaw = isUnderNewRule 
-            ? 'as per amendment to Finance Act, 2023'
-            : 'as per standard income tax rules';
+        relevantLaw = 'as per amendment to Finance Act, 2023';
+        isLongTerm = false; // Always treated as short-term for tax rate
     }
     
+    // 3. Handle Hybrid / Old Debt Funds (bought before 1-Apr-2023)
+    if (mutualFundType === 'hybrid') {
+        const ltcgCutoffDate = new Date(purchaseDateObj);
+        ltcgCutoffDate.setFullYear(ltcgCutoffDate.getFullYear() + 2); // 24 months holding period
+        isLongTerm = saleDateObj > ltcgCutoffDate;
+
+        netGain = totalSale - totalPurchase - exp; // Indexation is no longer applicable
+
+        if (isLongTerm) {
+            taxRate = 0.125; // CORRECTED: Flat 12.5% on LTCG
+            taxType = 'LTCG (Without Indexation)';
+        } else {
+            taxRate = getMarginalTaxRate(netGain + inc); // STCG taxed at slab rates
+            taxType = 'STCG (Added to Income)';
+        }
+    }
+
     const taxableGain = Math.max(0, netGain);
     const baseTax = taxableGain * taxRate;
     const cess = baseTax * 0.04;
@@ -87,12 +64,9 @@ export const calculateMutualFundsTax = (formData) => {
     return {
         totalPurchase, totalSale, netGain, isLongTerm, taxRate, exemption: 0,
         taxableGain, baseTax, cess,
-        taxType, relevantLaw, indexedCost, assetType: 'Debt Mutual Fund',
-        calculationError,
-        // --- NEW PROPERTIES FOR INDEXATION FORMULA ---
-        purchaseFY: isLongTerm ? purchaseFY : null,
-        saleFY: isLongTerm ? saleFY : null,
-        ciiPurchaseValue: isLongTerm ? ciiPurchase : null,
-        ciiSaleValue: isLongTerm ? ciiSale : null, totalExpenses: exp
+        taxType, relevantLaw, 
+        indexedCost: 0, // No indexation
+        assetType: mutualFundType === 'hybrid' ? 'Hybrid/Old Debt Fund' : 'Debt/Gold/Intl. Fund',
+        totalExpenses: exp,
     };
 };
