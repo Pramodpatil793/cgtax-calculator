@@ -1,0 +1,33 @@
+name: Fetch Daily Stock Prices
+
+on:
+  schedule:
+    # This runs at 8:00 PM IST (14:30 UTC) every day
+    - cron: '30 14 * * *'
+  workflow_dispatch: # This adds a button to run it manually
+
+jobs:
+  fetch-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          # We use the known working libraries
+          pip install requests pandas firebase-admin
+
+      - name: Create Firebase credentials file from secret
+        env:
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: echo "$FIREBASE_SECRET" > serviceAccountKey.json
+
+      - name: Run the data fetching script
+        run: python update_prices.py
