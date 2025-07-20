@@ -1,16 +1,16 @@
 steps:
-# First, navigate into the functions directory
+# First, install dependencies for the functions
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
   dir: 'functions'
 
-# Then, deploy only the functions
+# Then, deploy the function
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'gcloud'
   args:
     - 'functions'
     - 'deploy'
-    - 'getAiTaxAdvice' # The name of your function
+    - 'getAiTaxAdvice'
     - '--source=./functions'
     - '--trigger-http'
     - '--runtime=nodejs20'
@@ -18,3 +18,7 @@ steps:
     - '--entry-point=getAiTaxAdvice'
     - '--allow-unauthenticated'
     - '--set-secrets=GEMINI_API_KEY=GEMINI_API_KEY:latest'
+
+# Add this new section to solve the error
+options:
+  logging: CLOUD_LOGGING_ONLY
