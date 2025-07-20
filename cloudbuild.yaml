@@ -1,0 +1,20 @@
+steps:
+# First, navigate into the functions directory
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+  dir: 'functions'
+
+# Then, deploy only the functions
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'gcloud'
+  args:
+    - 'functions'
+    - 'deploy'
+    - 'getAiTaxAdvice' # The name of your function
+    - '--source=./functions'
+    - '--trigger-http'
+    - '--runtime=nodejs20'
+    - '--region=us-central1'
+    - '--entry-point=getAiTaxAdvice'
+    - '--allow-unauthenticated'
+    - '--set-secrets=GEMINI_API_KEY=GEMINI_API_KEY:latest'
