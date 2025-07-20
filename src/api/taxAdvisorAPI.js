@@ -5,7 +5,7 @@ import { TaxCalculationResult } from "../models/TaxCalculationResult";
 
 // --- CHANGE 2: ADDED THE SECURE CLOUD FUNCTION URL ---
 // Make sure this URL is the one you copied after deploying your function
-const SECURE_FUNCTION_URL = "https://console.firebase.google.com/project/cgtax-web-app/overview";
+const SECURE_FUNCTION_URL = "https://getaitaxadvice-byyaiqmaha-uc.a.run.app";
 
 export const fetchAiTaxAdvice = async (results) => {
   if (!results || !(results instanceof TaxCalculationResult)) {
