@@ -1,14 +1,11 @@
 import { TaxCalculationResult } from "../models/TaxCalculationResult";
 
-// The trigger URL for a V1 function is different. It includes the function name.
-const V1_FUNCTION_URL = "https://us-central1-cgtax-web-app.cloudfunctions.net/getAiTaxAdvice";
+const FUNCTION_URL = "https://us-central1-cgtax-web-app.cloudfunctions.net/getAiTaxAdvice";
 
 export const fetchAiTaxAdvice = async (results) => {
     if (!results || !(results instanceof TaxCalculationResult)) {
         throw new Error("Invalid results object provided to AI Advisor.");
     }
-    
-    // This check for a local key is no longer needed, so it can be removed.
 
     // The prompt generation logic is completely unchanged.
     const prompt = `You are an expert Indian tax advisor for FY 2024-25. You have two tasks.
@@ -31,28 +28,27 @@ Provide a valid JSON object with two keys: "breakdown" and "strategies".
  - "strategies": An array of strings for Task 2.
 `;
 
-try {
-    // Use a standard fetch call, which is what V1 functions expect.
-    const response = await fetch(V1_FUNCTION_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt }),
-    });
+    try {
+        const response = await fetch(FUNCTION_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: prompt }),
+        });
 
-    if (!response.ok) {
-        throw new Error(`API error ${response.status}: ${await response.text()}`);
-    }
+        if (!response.ok) {
+            throw new Error(`API error ${response.status}: ${await response.text()}`);
+        }
 
-    const result = await response.json();
-    if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-        let text = result.candidates[0].content.parts[0].text;
-        text = text.replace(/```json\n?|```/g, '');
-        return JSON.parse(text);
-    } else {
-        throw new Error("Invalid AI response structure");
+        const result = await response.json();
+        if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+            let text = result.candidates[0].content.parts[0].text;
+            text = text.replace(/```json\n?|```/g, '');
+            return JSON.parse(text);
+        } else {
+            throw new Error("Invalid AI response structure");
+        }
+    } catch (error) {
+        console.error("AI Advisor Error:", error);
+        throw error;
     }
-} catch (error) {
-    console.error("AI Advisor Error:", error);
-    throw error;
-}
 };
