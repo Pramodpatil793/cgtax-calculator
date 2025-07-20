@@ -1,26 +1,7 @@
 import { TaxCalculationResult } from "../models/TaxCalculationResult";
-// --- CHANGE 1: IMPORT THE NECESSARY FIREBASE MODULES ---
-import { initializeApp } from "firebase/app";
-import { getFunctions, httpsCallable } from "firebase/functions";
 
-// --- CHANGE 2: ADD YOUR FIREBASE CONFIGURATION OBJECT ---
-// You can find this in your Firebase Project Settings -> General -> Your apps -> SDK setup and configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyBfHA-qDvvJEs9fhvJK7p79_p6FibDlmsk",
-    authDomain: "cgtax-web-app.firebaseapp.com",
-    projectId: "cgtax-web-app",
-    storageBucket: "cgtax-web-app.appspot.com",
-    messagingSenderId: "248508033985",
-    appId: "1:248508033985:web:dda09e42c187169b8d2349",
-    measurementId: "G-PVHB3V93TW",
-  };
-  
-
-// --- CHANGE 3: INITIALIZE FIREBASE AND GET A REFERENCE TO THE FUNCTION ---
-const app = initializeApp(firebaseConfig);
-const functions = getFunctions(app);
-const getAiTaxAdviceCallable = httpsCallable(functions, "getAiTaxAdvice");
-
+// The trigger URL for a V1 function is different. It includes the function name.
+const V1_FUNCTION_URL = "https://us-central1-cgtax-web-app.cloudfunctions.net/getAiTaxAdvice";
 
 export const fetchAiTaxAdvice = async (results) => {
     if (!results || !(results instanceof TaxCalculationResult)) {
@@ -50,24 +31,28 @@ Provide a valid JSON object with two keys: "breakdown" and "strategies".
  - "strategies": An array of strings for Task 2.
 `;
 
-    try {
-        // --- CHANGE 4: CALL THE FUNCTION USING THE NEW V2 METHOD ---
-        const result = await getAiTaxAdviceCallable({ prompt: prompt });
+try {
+    // Use a standard fetch call, which is what V1 functions expect.
+    const response = await fetch(V1_FUNCTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt }),
+    });
 
-        // The actual response from the AI is now inside a `data` property
-        const responseData = result.data; 
-
-        // The rest of the response handling logic is unchanged.
-        if (responseData.candidates?.[0]?.content?.parts?.[0]?.text) {
-            let text = responseData.candidates[0].content.parts[0].text;
-            // Clean the response text to ensure it's valid JSON
-            text = text.replace(/```json\n?|```/g, '');
-            return JSON.parse(text);
-        } else {
-            throw new Error("Invalid AI response structure");
-        }
-    } catch (error) {
-        console.error("AI Advisor Error:", error);
-        throw error; // Re-throw the error to be caught by the calling hook
+    if (!response.ok) {
+        throw new Error(`API error ${response.status}: ${await response.text()}`);
     }
+
+    const result = await response.json();
+    if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+        let text = result.candidates[0].content.parts[0].text;
+        text = text.replace(/```json\n?|```/g, '');
+        return JSON.parse(text);
+    } else {
+        throw new Error("Invalid AI response structure");
+    }
+} catch (error) {
+    console.error("AI Advisor Error:", error);
+    throw error;
+}
 };
